@@ -2,9 +2,9 @@ import fs from 'fs';
 import readLine from 'readline';
 
 class Lox {
-  static fs = fs; // file scanner
+  static hadError: boolean = false;
 
-  static main(args: string[]) {
+  static main(args: string[]): void {
     if (args.length > 1) { // more than one file
       console.log('Usage: jlox [script]');
       process.exit(64);
@@ -15,39 +15,51 @@ class Lox {
     }
   }
 
-  static runFile(path: string) {
-    this.fs.readFile(path, 'utf8', (err: any, data: any) => {
+  static runFile(path: string): void {
+    fs.readFile(path, 'utf8', (err: any, data: string) => {
       if (err) {
         console.error('Error reading file: ', err);
-        process.exit(64);
+        process.exit(65);
       } else {
         this.run(data);
+        if (this.hadError)
+          process.exit(65)
       }
     });
   }
 
-  static runPrompt() {
+  static runPrompt(): void {
     const rl = readLine.createInterface({ // stdin scanner
       input: process.stdin,
-      output: process.stdout
-    })
+      output: process.stdout,
+    });
 
     const promptUser = () => {
       rl.question('> ', (line: string) => {
         if (line === null || line === '') {
-          rl.close() // exit REPL mode
+          rl.close(); // exit REPL mode
         } else {
-          this.run(line) // run line by line
-          promptUser() // continue to accept inputs
+          this.run(line); // run line by line
+          this.hadError = false;
+          promptUser(); // continue to accept inputs
         }
-      })
-    }
-    promptUser() // initialize REPL (closure reasons)
+      });
+    };
+    promptUser(); // initialize REPL (closure reasons)
   }
 
-  static run(source: String) {
+  static run(source: String): void {
     const tokens: string[] = source.split(' ');
     tokens.forEach((t) => console.log(t));
+  }
+
+  static error(line: number, message: string): void {
+    this.report(line, "", message)
+  }
+
+  private static report(line: number, where: string, message: string): void {
+    console.log("[line " + line + "] Error" + where + ": " + message)
+    this.hadError = true
   }
 }
 
