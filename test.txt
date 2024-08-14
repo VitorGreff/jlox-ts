@@ -1,1 +1,1 @@
-lox lang
+print "Hello, World"

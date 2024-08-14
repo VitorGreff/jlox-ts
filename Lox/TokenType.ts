@@ -45,5 +45,5 @@ export enum TokenType {
   VAR,
   WHILE,
 
-  EOF
+  EOF,
 }

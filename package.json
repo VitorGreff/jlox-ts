@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write .",
-    "start": "npm run format && npx ts-node lox.ts"
+    "start": "npm run format && npx ts-node Lox/Lox.ts"
   },
   "keywords": [],
   "author": "",
