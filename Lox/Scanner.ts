@@ -36,8 +36,22 @@ export class Scanner {
       case '+': this.addToken(TokenType.PLUS); break;
       case ';': this.addToken(TokenType.SEMICOLON); break;
       case '*': this.addToken(TokenType.STAR); break;
+      case '!': this.addToken(this.match('=') ? TokenType.BANG_EQUAL : TokenType.BANG)
+      case '=': this.addToken(this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL)
+      case '<': this.addToken(this.match('=') ? TokenType.LESS_EQUAL : TokenType.LESS)
+      case '>': this.addToken(this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER)
       default: Lox.error(this.line, "Unexpected character: " + c); break;
     }
+  }
+
+  private match(expected: string): boolean {
+    if (this.isAtEnd())
+      return false
+    if (this.source.charAt(this.current) != expected)
+      return false
+    this.current++
+    return true
+
   }
 
   private isAtEnd(): boolean {
@@ -45,6 +59,7 @@ export class Scanner {
   }
 
   private advance(): string {
+    // returns the char and THEN advance the pointer 
     return this.source.charAt(this.current++)
   }
 
