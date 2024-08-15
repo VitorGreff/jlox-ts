@@ -6,7 +6,12 @@ export class Token {
   literal: object | null;
   line: number;
 
-  constructor(type: TokenType, lexeme: string, literal: object | null, line: number) {
+  constructor(
+    type: TokenType,
+    lexeme: string,
+    literal: object | null,
+    line: number
+  ) {
     this.type = type;
     this.lexeme = lexeme;
     this.literal = literal;
