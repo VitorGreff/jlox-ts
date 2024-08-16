@@ -3,18 +3,37 @@ import { Token } from './Token';
 import { TokenType } from './TokenType';
 
 export class Scanner {
-  private source: string = '';
   private tokens: Token[] = [];
   private start: number = 0;
   private current: number = 0;
   private line: number = 1;
+  private source: string;
+
+  private keywords = new Map<string, TokenType>([
+    ['and', TokenType.AND],
+    ['class', TokenType.CLASS],
+    ['else', TokenType.ELSE],
+    ['false', TokenType.FALSE],
+    ['for', TokenType.FOR],
+    ['fun', TokenType.FUN],
+    ['if', TokenType.IF],
+    ['nil', TokenType.NIL],
+    ['or', TokenType.OR],
+    ['print', TokenType.PRINT],
+    ['return', TokenType.RETURN],
+    ['super', TokenType.SUPER],
+    ['this', TokenType.THIS],
+    ['true', TokenType.TRUE],
+    ['var', TokenType.VAR],
+    ['while', TokenType.WHILE],
+  ]);
 
   constructor(source: string) {
     this.source = source;
   }
 
   scanTokens(): Token[] {
-    while (!this.isAtEnd) {
+    while (!this.isAtEnd()) {
       this.start = this.current; // beginning of the next lexeme
       this.scanToken();
     }
@@ -86,44 +105,55 @@ export class Scanner {
       case '\n':
         this.line++;
         break;
-      case '"': this.string(); break;
+      case '"':
+        this.string();
+        break;
       default:
         if (this.isDigit(c)) {
-          this.number()
-        } else {
+          this.number();
+        } else if (this.isAlpha(c)) this.identifier();
+        else {
           Lox.error(this.line, 'Unexpected character: ' + c);
           break;
         }
     }
   }
 
+  private identifier() {
+    while (this.isAlphaNumeric(this.peek())) this.advance();
+    const text = this.source.substring(this.start, this.current);
+    let type = this.keywords.get(text);
+    if (!type) type = TokenType.IDENTIFIER;
+    this.addToken(type); // if type has not matched with any keyword, than it is an identifier
+  }
+
   private number() {
-    while (this.isDigit(this.peek()))
-      this.advance()
+    while (this.isDigit(this.peek())) this.advance();
     if (this.peek() === '.' && this.isDigit(this.peekNext())) {
-      this.advance
-      while (this.isDigit(this.peek()))
-        this.advance
+      this.advance;
+      while (this.isDigit(this.peek())) this.advance;
     }
     // we only have floating numbers
-    this.addTokenWithLiteral(TokenType.NUMBER, Number.parseFloat(this.source.substring(this.start, this.current)))
+    this.addTokenWithLiteral(
+      TokenType.NUMBER,
+      Number.parseFloat(this.source.substring(this.start, this.current))
+    );
   }
 
   private string() {
     while (this.peek() !== '"' && !this.isAtEnd()) {
-      if (this.peek() === '\n')
-        this.line++
-      this.advance()
+      if (this.peek() === '\n') this.line++;
+      this.advance();
     }
     if (this.isAtEnd()) {
-      Lox.error(this.line, "Unterminated string.")
+      Lox.error(this.line, 'Unterminated string.');
     }
 
-    this.advance() // closing string
+    this.advance(); // closing string
 
     // ignoring both double quotes and processing its value
-    const value = this.source.substring(this.start + 1, this.current - 1)
-    this.addTokenWithLiteral(TokenType.STRING, value)
+    const value = this.source.substring(this.start + 1, this.current - 1);
+    this.addTokenWithLiteral(TokenType.STRING, value);
   }
 
   private match(expected: string): boolean {
@@ -139,13 +169,20 @@ export class Scanner {
   }
 
   private peekNext(): string {
-    if (this.current + 1 >= this.source.length)
-      return '\0'
-    return this.source.charAt(this.current + 1)
+    if (this.current + 1 >= this.source.length) return '\0';
+    return this.source.charAt(this.current + 1);
+  }
+
+  private isAlpha(c: string): boolean {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c === '_';
+  }
+
+  private isAlphaNumeric(c: string): boolean {
+    return this.isAlpha(c) || this.isDigit(c);
   }
 
   private isDigit(c: string) {
-    return c >= '0' && c <= '9'
+    return c >= '0' && c <= '9';
   }
 
   private isAtEnd(): boolean {

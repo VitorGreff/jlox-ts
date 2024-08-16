@@ -51,7 +51,7 @@ export class Lox {
     promptUser(); // initialize REPL (closure reasons)
   }
 
-  static run(source: String): void {
+  static run(source: string): void {
     const scanner = new Scanner(source);
     const tokens: Token[] = scanner.scanTokens();
     tokens.forEach((t) => console.log(t));
