@@ -1,1 +1,9 @@
-print "HELLO"
+/* dauiwhdajwd
+dawbjd
+prin ajsdajsd
+ajdwajd
+bdjawda
+
+
+*/
+print("adwjad")

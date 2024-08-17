@@ -94,6 +94,8 @@ export class Scanner {
       case '/':
         if (this.match('/')) {
           while (this.peek() !== '\n' && !this.isAtEnd()) this.advance();
+        } else if (this.match('*')) {
+          this.blockComment();
         } else {
           this.addToken(TokenType.SLASH);
         }
@@ -119,6 +121,22 @@ export class Scanner {
     }
   }
 
+  private blockComment() {
+    while (!this.isAtEnd()) {
+      if (this.peek() === '*' && this.peekNext() === '/') {
+        // consume both simbles and stop the function
+        this.advance();
+        this.advance();
+        return;
+      } else if (this.peek() === '\n') {
+        this.line++;
+      }
+      this.advance();
+    }
+
+    Lox.error(this.line, 'Unterminated comment block.');
+  }
+
   private identifier() {
     while (this.isAlphaNumeric(this.peek())) this.advance();
     const text = this.source.substring(this.start, this.current);
@@ -130,7 +148,7 @@ export class Scanner {
   private number() {
     while (this.isDigit(this.peek())) this.advance();
     if (this.peek() === '.' && this.isDigit(this.peekNext())) {
-      this.advance;
+      this.advance();
       while (this.isDigit(this.peek())) this.advance;
     }
     // we only have floating numbers
