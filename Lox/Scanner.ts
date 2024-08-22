@@ -122,19 +122,31 @@ export class Scanner {
   }
 
   private blockComment() {
+    let nestedLayer = 1;
+
     while (!this.isAtEnd()) {
       if (this.peek() === '*' && this.peekNext() === '/') {
-        // consume both simbles and stop the function
         this.advance();
         this.advance();
-        return;
+        nestedLayer--;
+        if (nestedLayer === 0) return;
+      } else if (this.peek() === '/' && this.peekNext() === '*') {
+        // starts new block comment
+        this.advance();
+        this.advance();
+        nestedLayer++;
       } else if (this.peek() === '\n') {
         this.line++;
       }
       this.advance();
     }
 
-    Lox.error(this.line, 'Unterminated comment block.');
+    Lox.error(
+      this.line,
+      nestedLayer > 1
+        ? `${nestedLayer} comment blocks unterminated.`
+        : `${nestedLayer} comment block unterminated`
+    );
   }
 
   private identifier() {
