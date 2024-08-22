@@ -11,5 +11,8 @@
   },
   "scripts": {
     "start": "bun run prettier --write . && bun run Lox/Lox.ts"
+  },
+  "dependencies": {
+    "prettier": "^3.3.3"
   }
 }
