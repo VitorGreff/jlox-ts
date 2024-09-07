@@ -9,7 +9,7 @@ export class Lox {
   static main(args: string[]): void {
     if (args.length > 1) {
       // more than one file
-      console.log('Usage: jlox [script]');
+      console.error('Usage: jlox [script]');
       process.exit(64);
     } else if (args.length == 1) {
       this.runFile(args[0]);
